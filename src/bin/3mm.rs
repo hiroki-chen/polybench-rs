@@ -1,4 +1,3 @@
-#![feature(min_const_generics)]
 
 use polybench_rs::linear_algebra::kernels::_3mm::bench;
 
