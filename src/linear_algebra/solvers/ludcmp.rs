@@ -75,7 +75,7 @@ unsafe fn kernel_ludcmp<const N: usize>(
     }
 }
 
-pub fn bench<const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const N: usize, F: FnMut() -> u64>(mut timing_function: F) -> Duration {
     let n = N;
 
     let mut A = Array2D::<DataType, N, N>::uninit();
@@ -87,7 +87,7 @@ pub fn bench<const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration 
         init_array(n, &mut A, &mut b, &mut x, &mut y);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_ludcmp(n, &mut A, &b, &mut x, &mut y),
-            timing_function,
+            &mut timing_function,
         );
         util::consume(x);
         elapsed

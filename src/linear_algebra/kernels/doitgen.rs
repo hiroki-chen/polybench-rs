@@ -50,7 +50,7 @@ unsafe fn kernel_doitgen<const NP: usize, const NQ: usize, const NR: usize>(
 }
 
 pub fn bench<const NP: usize, const NQ: usize, const NR: usize, F: FnMut() -> u64>(
-    timing_function: F,
+    mut timing_function: F,
 ) -> Duration {
     let nr = NR;
     let nq = NQ;
@@ -64,7 +64,7 @@ pub fn bench<const NP: usize, const NQ: usize, const NR: usize, F: FnMut() -> u6
         init_array(nr, nq, np, &mut A, &mut C4);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_doitgen(nr, nq, np, &mut A, &C4, &mut sum),
-            timing_function,
+            &mut timing_function,
         );
         util::consume(A);
         elapsed

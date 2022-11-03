@@ -39,7 +39,7 @@ unsafe fn kernel_seidel_2d<const N: usize, const TSTEPS: usize>(
     }
 }
 
-pub fn bench<F: FnMut() -> u64, const N: usize, const TSTEPS: usize>(timing_function: F) -> Duration {
+pub fn bench<F: FnMut() -> u64, const N: usize, const TSTEPS: usize>(mut timing_function: F) -> Duration {
     let n = N;
     let tsteps = TSTEPS;
 
@@ -49,7 +49,7 @@ pub fn bench<F: FnMut() -> u64, const N: usize, const TSTEPS: usize>(timing_func
         init_array::<N, TSTEPS>(n, &mut A);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_seidel_2d::<N, TSTEPS>(tsteps, n, &mut A),
-            timing_function,
+            &mut timing_function,
         );
         util::consume(A);
         elapsed

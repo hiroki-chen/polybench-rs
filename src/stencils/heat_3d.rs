@@ -50,7 +50,7 @@ unsafe fn kernel_heat_3d<const N: usize, const TSTEPS: usize>(
     }
 }
 
-pub fn bench<const N: usize, const TSTEPS: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const N: usize, const TSTEPS: usize, F: FnMut() -> u64>(mut timing_function: F) -> Duration {
     let n = N;
     let tsteps = TSTEPS;
 
@@ -61,7 +61,7 @@ pub fn bench<const N: usize, const TSTEPS: usize, F: FnMut() -> u64>(timing_func
         init_array::<N, TSTEPS>(n, &mut A, &mut B);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_heat_3d::<N, TSTEPS>(tsteps, n, &mut A, &mut B),
-            timing_function,
+            &mut timing_function,
         );
         util::consume(A);
         elapsed

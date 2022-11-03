@@ -98,7 +98,7 @@ pub fn bench<
     const NL: usize,
     const NM: usize,
 >(
-    timing_function: F,
+    mut timing_function: F,
 ) -> Duration {
     let ni = NI;
     let nj = NJ;
@@ -118,7 +118,7 @@ pub fn bench<
         init_array(ni, nj, nk, nl, nm, &mut A, &mut B, &mut C, &mut D);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_3mm(ni, nj, nk, nl, nm, &mut E, &A, &B, &mut F, &C, &D, &mut G),
-            timing_function,
+            &mut timing_function,
         );
         util::consume(G);
         elapsed

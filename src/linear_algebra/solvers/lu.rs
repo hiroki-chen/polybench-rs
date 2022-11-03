@@ -35,14 +35,15 @@ unsafe fn kernel_lu<const N: usize>(n: usize, A: &mut Array2D<DataType, N, N>) {
     }
 }
 
-pub fn bench<const N: usize, F: FnMut() -> u64>(timing_func: F) -> Duration {
+pub fn bench<const N: usize, F: FnMut() -> u64>(mut timing_function: F) -> Duration {
     let n = N;
 
     let mut A = Array2D::<DataType, N, N>::uninit();
 
     unsafe {
         init_array(n, &mut A);
-        let elapsed = util::benchmark_with_timing_function(|| kernel_lu(n, &mut A), timing_func);
+        let elapsed =
+            util::benchmark_with_timing_function(|| kernel_lu(n, &mut A), &mut timing_function);
         util::consume(A);
         elapsed
     }

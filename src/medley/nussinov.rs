@@ -72,7 +72,7 @@ unsafe fn kernel_nussinov<const N: usize>(
     }
 }
 
-pub fn bench<const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const N: usize, F: FnMut() -> u64>(mut timing_function: F) -> Duration {
     let n = N;
 
     let mut seq = Array1D::uninit();
@@ -82,7 +82,7 @@ pub fn bench<const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration 
         init_array(n, &mut seq, &mut table);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_nussinov(n, &seq, &mut table),
-            timing_function,
+            &mut timing_function,
         );
         util::consume(table);
         elapsed

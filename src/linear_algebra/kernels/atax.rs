@@ -44,7 +44,7 @@ unsafe fn kernel_atax<const M: usize, const N: usize>(
     }
 }
 
-pub fn bench<const M: usize, const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const M: usize, const N: usize, F: FnMut() -> u64>(mut timing_function: F) -> Duration {
     let m = M;
     let n = N;
 
@@ -55,7 +55,7 @@ pub fn bench<const M: usize, const N: usize, F: FnMut() -> u64>(timing_function:
 
     unsafe {
         init_array(m, n, &mut A, &mut x);
-        let elapsed = util::benchmark_with_timing_function(|| kernel_atax(m, n, &A, &x, &mut y, &mut tmp), timing_function);
+        let elapsed = util::benchmark_with_timing_function(|| kernel_atax(m, n, &A, &x, &mut y, &mut tmp), &mut timing_function);
         util::consume(y);
         elapsed
     }

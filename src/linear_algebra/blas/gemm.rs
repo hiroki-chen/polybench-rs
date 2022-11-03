@@ -55,7 +55,7 @@ unsafe fn kernel_gemm<const NI: usize, const NJ: usize, const NK: usize>(
 }
 
 pub fn bench<F: FnMut() -> u64, const NI: usize, const NJ: usize, const NK: usize>(
-    timing_function: F,
+    mut timing_function: F,
 ) -> Duration {
     let ni = NI;
     let nj = NJ;
@@ -71,7 +71,7 @@ pub fn bench<F: FnMut() -> u64, const NI: usize, const NJ: usize, const NK: usiz
         init_array(ni, nj, nk, &mut alpha, &mut beta, &mut C, &mut A, &mut B);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_gemm(ni, nj, nk, alpha, beta, &mut C, &A, &B),
-            timing_function,
+            &mut timing_function,
         );
         util::consume(C);
         elapsed
