@@ -55,8 +55,8 @@ unsafe fn kernel_fdtd_2d<const NX: usize, const NY: usize, const TMAX: usize>(
     }
 }
 
-pub fn bench<F: FnMut() -> u64, const NX: usize, const NY: usize, const TMAX: usize>(
-    mut timing_function: F,
+pub fn bench<const NX: usize, const NY: usize, const TMAX: usize>(
+    timing_function: &dyn Fn() -> u64,
 ) -> Duration {
     let tmax = TMAX;
     let nx = NX;
@@ -71,7 +71,7 @@ pub fn bench<F: FnMut() -> u64, const NX: usize, const NY: usize, const TMAX: us
         init_array(tmax, nx, ny, &mut ex, &mut ey, &mut hz, &mut fict);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_fdtd_2d(tmax, nx, ny, &mut ex, &mut ey, &mut hz, &fict),
-            &mut timing_function,
+            timing_function,
         );
         util::consume(ex);
         util::consume(ey);

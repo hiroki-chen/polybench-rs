@@ -117,7 +117,7 @@ unsafe fn kernel_deriche<const H: usize, const W: usize>(
     }
 }
 
-pub fn bench<F: FnMut() -> u64, const H: usize, const W: usize>(mut timing_function: F) -> Duration {
+pub fn bench<const H: usize, const W: usize>(timing_function: &dyn Fn() -> u64) -> Duration {
     let w = W;
     let h = H;
 
@@ -131,7 +131,7 @@ pub fn bench<F: FnMut() -> u64, const H: usize, const W: usize>(mut timing_funct
         init_array(w, h, &mut alpha, &mut img_in);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_deriche(w, h, alpha, &img_in, &mut img_out, &mut y1, &mut y2),
-            &mut timing_function,
+            timing_function,
         );
         util::consume(img_out);
         elapsed

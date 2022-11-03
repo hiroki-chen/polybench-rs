@@ -9,8 +9,8 @@
 //! new code should instead use the associated constants
 //! defined directly on the `f32` type.
 
-use core::intrinsics;
 use crate::cmath;
+use core::intrinsics;
 
 impl f32 {
     /// Returns the largest integer less than or equal to `self`.

@@ -38,7 +38,7 @@ unsafe fn kernel_jacobi_2d<const N: usize, const TSTEPS: usize>(
     }
 }
 
-pub fn bench<F: FnMut() -> u64, const N: usize, const TSTEPS: usize>(mut timing_function: F) -> Duration {
+pub fn bench<const N: usize, const TSTEPS: usize>(timing_function: &dyn Fn() -> u64) -> Duration {
     let n = N;
     let tsteps = TSTEPS;
 
@@ -49,7 +49,7 @@ pub fn bench<F: FnMut() -> u64, const N: usize, const TSTEPS: usize>(mut timing_
         init_array::<N, TSTEPS>(n, &mut A, &mut B);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_jacobi_2d::<N, TSTEPS>(tsteps, n, &mut A, &mut B),
-            &mut timing_function,
+            timing_function,
         );
         util::consume(A);
         elapsed

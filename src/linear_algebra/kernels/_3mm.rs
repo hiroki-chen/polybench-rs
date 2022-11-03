@@ -91,14 +91,13 @@ unsafe fn kernel_3mm<
 }
 
 pub fn bench<
-    F: FnMut() -> u64,
     const NI: usize,
     const NJ: usize,
     const NK: usize,
     const NL: usize,
     const NM: usize,
 >(
-    mut timing_function: F,
+    timing_function: &dyn Fn() -> u64,
 ) -> Duration {
     let ni = NI;
     let nj = NJ;
@@ -118,7 +117,7 @@ pub fn bench<
         init_array(ni, nj, nk, nl, nm, &mut A, &mut B, &mut C, &mut D);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_3mm(ni, nj, nk, nl, nm, &mut E, &A, &B, &mut F, &C, &D, &mut G),
-            &mut timing_function,
+            timing_function,
         );
         util::consume(G);
         elapsed

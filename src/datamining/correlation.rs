@@ -66,7 +66,7 @@ unsafe fn kernel_correlation<const M: usize, const N: usize>(
     corr[n - 1][n - 1] = 1.0;
 }
 
-pub fn bench<const M: usize, const N: usize, F: FnMut() -> u64>(mut timing_function: F) -> Duration {
+pub fn bench<const M: usize, const N: usize>(timing_function: &dyn Fn() -> u64) -> Duration {
     let m = M;
     let n = N;
 
@@ -80,7 +80,7 @@ pub fn bench<const M: usize, const N: usize, F: FnMut() -> u64>(mut timing_funct
         init_array(m, n, &mut float_n, &mut data);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_correlation(m, n, float_n, &mut data, &mut corr, &mut mean, &mut stddev),
-            &mut timing_function,
+            timing_function,
         );
         util::consume(corr);
         elapsed

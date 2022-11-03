@@ -44,7 +44,7 @@ unsafe fn kernel_mvt<const N: usize>(
     }
 }
 
-pub fn bench<const N: usize, F: FnMut() -> u64>(mut timing_function: F) -> Duration {
+pub fn bench<const N: usize>(timing_function: &dyn Fn() -> u64) -> Duration {
     let n = N;
 
     let mut A = Array2D::<DataType, N, N>::uninit();
@@ -57,7 +57,7 @@ pub fn bench<const N: usize, F: FnMut() -> u64>(mut timing_function: F) -> Durat
         init_array(n, &mut x1, &mut x2, &mut y_1, &mut y_2, &mut A);
         let elapsed = util::benchmark_with_timing_function(
             || kernel_mvt(n, &mut x1, &mut x2, &y_1, &y_2, &A),
-            &mut timing_function,
+            timing_function,
         );
         util::consume(x1);
         util::consume(x2);
