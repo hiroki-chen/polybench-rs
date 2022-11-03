@@ -45,7 +45,7 @@ pub fn bench<const N: usize>() -> Duration {
 
     unsafe {
         init_array(n, &mut r);
-        let elapsed = util::time_function(|| kernel_durbin(n, &r, &mut y));
+        let elapsed = util::benchmark(|| kernel_durbin(n, &r, &mut y));
         util::consume(y);
         elapsed
     }

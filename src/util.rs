@@ -25,11 +25,27 @@ fn flush_llc_cache() {
     consume(sum);
 }
 
+/// Avoid invoking this interface.
 #[inline(always)]
-pub fn time_function<F: FnOnce()>(f: F) -> Duration {
-    // TODO: Fix the time function.
-    // We need to use the OCALL to get time.
+pub fn benchmark<F: FnOnce()>(f: F) -> Duration {
     flush_llc_cache();
+
     f();
-    Duration::from_secs(123)
+    Duration::from_secs(0)
+}
+
+/// The target platform does not necessarily support std, so the time function should be given
+/// by the user manually as a closure.
+#[inline(always)]
+pub fn benchmark_with_timing_function<F1, F2>(task: F1, time_function: F2) -> Duration
+where
+    F1: FnOnce(),
+    F2: Fn() -> u64,
+{
+    flush_llc_cache();
+
+    let begin = time_function();
+    task();
+    let end = time_function();
+    Duration::from_secs(end - begin)
 }

@@ -88,7 +88,7 @@ pub fn bench<const N: usize, const TSTEPS: usize>() -> Duration {
 
     unsafe {
         init_array::<N, TSTEPS>(n, &mut u);
-        let elapsed = util::time_function(|| {
+        let elapsed = util::benchmark(|| {
             kernel_adi::<N, TSTEPS>(tsteps, n, &mut u, &mut v, &mut p, &mut q)
         });
         util::consume(u);

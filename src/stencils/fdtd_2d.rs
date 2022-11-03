@@ -68,7 +68,7 @@ pub fn bench<const NX: usize, const NY: usize, const TMAX: usize>() -> Duration 
     unsafe {
         init_array(tmax, nx, ny, &mut ex, &mut ey, &mut hz, &mut fict);
         let elapsed =
-            util::time_function(|| kernel_fdtd_2d(tmax, nx, ny, &mut ex, &mut ey, &mut hz, &fict));
+            util::benchmark(|| kernel_fdtd_2d(tmax, nx, ny, &mut ex, &mut ey, &mut hz, &fict));
         util::consume(ex);
         util::consume(ey);
         util::consume(hz);

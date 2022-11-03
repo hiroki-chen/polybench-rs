@@ -129,7 +129,7 @@ pub fn bench<const H: usize, const W: usize>() -> Duration {
 
     unsafe {
         init_array(w, h, &mut alpha, &mut img_in);
-        let elapsed = util::time_function(|| {
+        let elapsed = util::benchmark(|| {
             kernel_deriche(w, h, alpha, &img_in, &mut img_out, &mut y1, &mut y2)
         });
         util::consume(img_out);

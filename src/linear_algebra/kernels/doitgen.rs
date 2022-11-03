@@ -60,7 +60,7 @@ pub fn bench<const NP: usize, const NQ: usize, const NR: usize>() -> Duration {
 
     unsafe {
         init_array(nr, nq, np, &mut A, &mut C4);
-        let elapsed = util::time_function(|| kernel_doitgen(nr, nq, np, &mut A, &C4, &mut sum));
+        let elapsed = util::benchmark(|| kernel_doitgen(nr, nq, np, &mut A, &C4, &mut sum));
         util::consume(A);
         elapsed
     }

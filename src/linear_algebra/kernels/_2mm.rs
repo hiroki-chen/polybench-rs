@@ -90,7 +90,7 @@ pub fn bench<const NI: usize, const NJ: usize, const NK: usize, const NL: usize>
         init_array(
             ni, nj, nk, nl, &mut alpha, &mut beta, &mut A, &mut B, &mut C, &mut D,
         );
-        let elapsed = util::time_function(|| {
+        let elapsed = util::benchmark(|| {
             kernel_2mm(ni, nj, nk, nl, alpha, beta, &mut tmp, &A, &B, &C, &mut D)
         });
         util::consume(D);

@@ -113,7 +113,7 @@ pub fn bench<
 
     unsafe {
         init_array(ni, nj, nk, nl, nm, &mut A, &mut B, &mut C, &mut D);
-        let elapsed = util::time_function(|| {
+        let elapsed = util::benchmark(|| {
             kernel_3mm(ni, nj, nk, nl, nm, &mut E, &A, &B, &mut F, &C, &D, &mut G)
         });
         util::consume(G);

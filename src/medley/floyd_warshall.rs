@@ -35,7 +35,7 @@ pub fn bench<const N: usize>() -> Duration {
 
     unsafe {
         init_array(n, &mut path);
-        let elapsed = util::time_function(|| kernel_floyd_warshall(n, &mut path));
+        let elapsed = util::benchmark(|| kernel_floyd_warshall(n, &mut path));
         util::consume(path);
         elapsed
     }

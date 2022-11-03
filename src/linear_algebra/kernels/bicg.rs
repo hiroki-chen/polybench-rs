@@ -56,7 +56,7 @@ pub fn bench<const M: usize, const N: usize>() -> Duration {
 
     unsafe {
         init_array(m, n, &mut A, &mut r, &mut p);
-        let elapsed = util::time_function(|| kernel_bicg(m, n, &A, &mut s, &mut q, &p, &r));
+        let elapsed = util::benchmark(|| kernel_bicg(m, n, &A, &mut s, &mut q, &p, &r));
         util::consume(s);
         util::consume(q);
         elapsed

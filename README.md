@@ -4,6 +4,8 @@ Rust port of [PolyBench/C](http://polybench.sourceforge.net) - a collection of n
 
 This reimplementation was primarily motivated by benchmarking [LLVM Polly](https://polly.llvm.org/) as applied to Rust.
 
+This crate supports `no_std`, but you need to register a timing function before use.
+
 ## Usage
 
 Individual benchmarks can be run with:

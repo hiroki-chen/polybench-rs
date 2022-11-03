@@ -60,7 +60,7 @@ pub fn bench<const N: usize, const TSTEPS: usize>() -> Duration {
     unsafe {
         init_array::<N, TSTEPS>(n, &mut A, &mut B);
         let elapsed =
-            util::time_function(|| kernel_heat_3d::<N, TSTEPS>(tsteps, n, &mut A, &mut B));
+            util::benchmark(|| kernel_heat_3d::<N, TSTEPS>(tsteps, n, &mut A, &mut B));
         util::consume(A);
         elapsed
     }
