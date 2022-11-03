@@ -55,7 +55,7 @@ unsafe fn kernel_fdtd_2d<const NX: usize, const NY: usize, const TMAX: usize>(
     }
 }
 
-pub fn bench<F: Fn() -> u64, const NX: usize, const NY: usize, const TMAX: usize>(
+pub fn bench<F: FnMut() -> u64, const NX: usize, const NY: usize, const TMAX: usize>(
     timing_function: F,
 ) -> Duration {
     let tmax = TMAX;

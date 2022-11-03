@@ -49,7 +49,7 @@ unsafe fn kernel_doitgen<const NP: usize, const NQ: usize, const NR: usize>(
     }
 }
 
-pub fn bench<const NP: usize, const NQ: usize, const NR: usize, F: Fn() -> u64>(
+pub fn bench<const NP: usize, const NQ: usize, const NR: usize, F: FnMut() -> u64>(
     timing_function: F,
 ) -> Duration {
     let nr = NR;

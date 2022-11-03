@@ -45,7 +45,7 @@ unsafe fn kernel_gesummv<const N: usize>(
     }
 }
 
-pub fn bench<F: Fn() -> u64, const N: usize>(timing_function: F) -> Duration {
+pub fn bench<F: FnMut() -> u64, const N: usize>(timing_function: F) -> Duration {
     let n = N;
 
     let mut alpha = 0.0;

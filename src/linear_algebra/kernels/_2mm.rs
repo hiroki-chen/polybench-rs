@@ -72,7 +72,7 @@ unsafe fn kernel_2mm<const NI: usize, const NJ: usize, const NK: usize, const NL
     }
 }
 
-pub fn bench<const NI: usize, const NJ: usize, const NK: usize, const NL: usize, F: Fn() -> u64>(
+pub fn bench<const NI: usize, const NJ: usize, const NK: usize, const NL: usize, F: FnMut() -> u64>(
     timing_function: F,
 ) -> Duration {
     let ni = NI;

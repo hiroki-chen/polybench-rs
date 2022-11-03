@@ -32,7 +32,7 @@ unsafe fn kernel_jacobi_1d<const N: usize, const TSTEPS: usize>(
     }
 }
 
-pub fn bench<const N: usize, const TSTEPS: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const N: usize, const TSTEPS: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
     let n = N;
     let tsteps = TSTEPS;
 

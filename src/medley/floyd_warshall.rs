@@ -28,7 +28,7 @@ unsafe fn kernel_floyd_warshall<const N: usize>(n: usize, path: &mut Array2D<Dat
     }
 }
 
-pub fn bench<F: Fn() -> u64, const N: usize>(timing_function: F) -> Duration {
+pub fn bench<F: FnMut() -> u64, const N: usize>(timing_function: F) -> Duration {
     let n = N;
 
     let mut path = Array2D::<DataType, N, N>::uninit();

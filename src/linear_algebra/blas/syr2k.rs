@@ -51,7 +51,7 @@ unsafe fn kernel_syr2k<const M: usize, const N: usize>(
     }
 }
 
-pub fn bench<F: Fn() -> u64, const M: usize, const N: usize>(timing_function: F) -> Duration {
+pub fn bench<F: FnMut() -> u64, const M: usize, const N: usize>(timing_function: F) -> Duration {
     let m = M;
     let n = N;
 

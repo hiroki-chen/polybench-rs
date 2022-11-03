@@ -37,10 +37,10 @@ pub fn benchmark<F: FnOnce()>(f: F) -> Duration {
 /// The target platform does not necessarily support std, so the time function should be given
 /// by the user manually as a closure.
 #[inline(always)]
-pub fn benchmark_with_timing_function<F1, F2>(task: F1, time_function: F2) -> Duration
+pub fn benchmark_with_timing_function<F1, F2>(task: F1, mut time_function: F2) -> Duration
 where
     F1: FnOnce(),
-    F2: Fn() -> u64,
+    F2: FnMut() -> u64,
 {
     flush_llc_cache();
 

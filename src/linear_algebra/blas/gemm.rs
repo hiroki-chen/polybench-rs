@@ -54,7 +54,7 @@ unsafe fn kernel_gemm<const NI: usize, const NJ: usize, const NK: usize>(
     }
 }
 
-pub fn bench<F: Fn() -> u64, const NI: usize, const NJ: usize, const NK: usize>(
+pub fn bench<F: FnMut() -> u64, const NI: usize, const NJ: usize, const NK: usize>(
     timing_function: F,
 ) -> Duration {
     let ni = NI;

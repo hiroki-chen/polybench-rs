@@ -54,7 +54,7 @@ unsafe fn kernel_symm<const M: usize, const N: usize>(
     }
 }
 
-pub fn bench<const M: usize, const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const M: usize, const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
     let m = M;
     let n = N;
 

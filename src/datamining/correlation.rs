@@ -66,7 +66,7 @@ unsafe fn kernel_correlation<const M: usize, const N: usize>(
     corr[n - 1][n - 1] = 1.0;
 }
 
-pub fn bench<const M: usize, const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const M: usize, const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
     let m = M;
     let n = N;
 

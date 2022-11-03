@@ -72,7 +72,7 @@ unsafe fn kernel_nussinov<const N: usize>(
     }
 }
 
-pub fn bench<const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
     let n = N;
 
     let mut seq = Array1D::uninit();

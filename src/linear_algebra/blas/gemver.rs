@@ -76,7 +76,7 @@ unsafe fn kernel_gemver<const N: usize>(
     }
 }
 
-pub fn bench<const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
+pub fn bench<const N: usize, F: FnMut() -> u64>(timing_function: F) -> Duration {
     let n = N;
 
     let mut alpha = 0.0;

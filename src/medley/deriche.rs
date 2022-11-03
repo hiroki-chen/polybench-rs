@@ -117,7 +117,7 @@ unsafe fn kernel_deriche<const H: usize, const W: usize>(
     }
 }
 
-pub fn bench<F: Fn() -> u64, const H: usize, const W: usize>(timing_function: F) -> Duration {
+pub fn bench<F: FnMut() -> u64, const H: usize, const W: usize>(timing_function: F) -> Duration {
     let w = W;
     let h = H;
 

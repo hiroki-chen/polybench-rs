@@ -91,7 +91,7 @@ unsafe fn kernel_3mm<
 }
 
 pub fn bench<
-    F: Fn() -> u64,
+    F: FnMut() -> u64,
     const NI: usize,
     const NJ: usize,
     const NK: usize,
