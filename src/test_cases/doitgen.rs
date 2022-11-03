@@ -3,7 +3,7 @@ use polybench_rs::linear_algebra::kernels::doitgen::bench;
 
 fn bench_and_print<const NP: usize, const NQ: usize, const NR: usize>() {
     let dims = format!("{:?}", (NP, NQ, NR));
-    let elapsed = bench::<NP, NQ, NR>().as_secs_f64();
+    let elapsed = bench::<NP, NQ, NR>(|| 0).as_secs_f64();
     println!("{:<14} | {:<30} | {:.7} s", "doitgen", dims, elapsed);
 }
 

@@ -35,7 +35,7 @@ unsafe fn kernel_trisolv<const N: usize>(
     }
 }
 
-pub fn bench<const N: usize>() -> Duration {
+pub fn bench<const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
     let n = N;
 
     let mut L = Array2D::<DataType, N, N>::uninit();
@@ -44,13 +44,14 @@ pub fn bench<const N: usize>() -> Duration {
 
     unsafe {
         init_array(n, &mut L, &mut x, &mut b);
-        let elapsed = util::benchmark(|| kernel_trisolv(n, &L, &mut x, &b));
+        let elapsed = util::benchmark_with_timing_function(
+            || kernel_trisolv(n, &L, &mut x, &b),
+            timing_function,
+        );
         util::consume(x);
         elapsed
     }
 }
 
 #[test]
-fn check() {
-    bench::<20>();
-}
+fn check() {}

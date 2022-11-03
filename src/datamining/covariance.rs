@@ -51,7 +51,7 @@ unsafe fn kernel_covariance<const M: usize, const N: usize>(
     }
 }
 
-pub fn bench<const M: usize, const N: usize>() -> Duration {
+pub fn bench<const M: usize, const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
     let m = M;
     let n = N;
 
@@ -62,15 +62,14 @@ pub fn bench<const M: usize, const N: usize>() -> Duration {
 
     unsafe {
         init_array(m, n, &mut float_n, &mut data);
-        let elapsed = util::benchmark(|| {
-            kernel_covariance(m, n, float_n, &mut data, &mut cov, &mut mean)
-        });
+        let elapsed = util::benchmark_with_timing_function(
+            || kernel_covariance(m, n, float_n, &mut data, &mut cov, &mut mean),
+            timing_function,
+        );
         util::consume(cov);
         elapsed
     }
 }
 
 #[test]
-fn check() {
-    bench::<12, 14>();
-}
+fn check() {}

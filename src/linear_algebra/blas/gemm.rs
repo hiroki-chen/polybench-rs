@@ -54,7 +54,9 @@ unsafe fn kernel_gemm<const NI: usize, const NJ: usize, const NK: usize>(
     }
 }
 
-pub fn bench<const NI: usize, const NJ: usize, const NK: usize>() -> Duration {
+pub fn bench<F: Fn() -> u64, const NI: usize, const NJ: usize, const NK: usize>(
+    timing_function: F,
+) -> Duration {
     let ni = NI;
     let nj = NJ;
     let nk = NK;
@@ -67,13 +69,14 @@ pub fn bench<const NI: usize, const NJ: usize, const NK: usize>() -> Duration {
 
     unsafe {
         init_array(ni, nj, nk, &mut alpha, &mut beta, &mut C, &mut A, &mut B);
-        let elapsed = util::benchmark(|| kernel_gemm(ni, nj, nk, alpha, beta, &mut C, &A, &B));
+        let elapsed = util::benchmark_with_timing_function(
+            || kernel_gemm(ni, nj, nk, alpha, beta, &mut C, &A, &B),
+            timing_function,
+        );
         util::consume(C);
         elapsed
     }
 }
 
 #[test]
-fn check() {
-    bench::<10, 11, 12>();
-}
+fn check() {}

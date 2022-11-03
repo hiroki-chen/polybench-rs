@@ -45,7 +45,7 @@ unsafe fn kernel_gesummv<const N: usize>(
     }
 }
 
-pub fn bench<const N: usize>() -> Duration {
+pub fn bench<F: Fn() -> u64, const N: usize>(timing_function: F) -> Duration {
     let n = N;
 
     let mut alpha = 0.0;
@@ -58,14 +58,14 @@ pub fn bench<const N: usize>() -> Duration {
 
     unsafe {
         init_array(n, &mut alpha, &mut beta, &mut A, &mut B, &mut x);
-        let elapsed =
-            util::benchmark(|| kernel_gesummv(n, alpha, beta, &A, &B, &mut tmp, &x, &mut y));
+        let elapsed = util::benchmark_with_timing_function(
+            || kernel_gesummv(n, alpha, beta, &A, &B, &mut tmp, &x, &mut y),
+            timing_function,
+        );
         util::consume(y);
         elapsed
     }
 }
 
 #[test]
-fn check() {
-    bench::<13>();
-}
+fn check() {}

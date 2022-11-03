@@ -41,7 +41,7 @@ unsafe fn kernel_trmm<const M: usize, const N: usize>(
     }
 }
 
-pub fn bench<const M: usize, const N: usize>() -> Duration {
+pub fn bench<const M: usize, const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
     let m = M;
     let n = N;
 
@@ -51,13 +51,14 @@ pub fn bench<const M: usize, const N: usize>() -> Duration {
 
     unsafe {
         init_array(m, n, &mut alpha, &mut A, &mut B);
-        let elapsed = util::benchmark(|| kernel_trmm(m, n, alpha, &A, &mut B));
+        let elapsed = util::benchmark_with_timing_function(
+            || kernel_trmm(m, n, alpha, &A, &mut B),
+            timing_function,
+        );
         util::consume(B);
         elapsed
     }
 }
 
 #[test]
-fn check() {
-    bench::<10, 12>();
-}
+fn check() {}

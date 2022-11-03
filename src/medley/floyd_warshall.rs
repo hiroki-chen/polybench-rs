@@ -28,20 +28,21 @@ unsafe fn kernel_floyd_warshall<const N: usize>(n: usize, path: &mut Array2D<Dat
     }
 }
 
-pub fn bench<const N: usize>() -> Duration {
+pub fn bench<F: Fn() -> u64, const N: usize>(timing_function: F) -> Duration {
     let n = N;
 
     let mut path = Array2D::<DataType, N, N>::uninit();
 
     unsafe {
         init_array(n, &mut path);
-        let elapsed = util::benchmark(|| kernel_floyd_warshall(n, &mut path));
+        let elapsed = util::benchmark_with_timing_function(
+            || kernel_floyd_warshall(n, &mut path),
+            timing_function,
+        );
         util::consume(path);
         elapsed
     }
 }
 
 #[test]
-fn check() {
-    bench::<28>();
-}
+fn check() {}

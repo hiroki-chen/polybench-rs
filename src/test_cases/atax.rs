@@ -1,10 +1,10 @@
-
-use polybench_rs::linear_algebra::kernels::bicg::bench;
+use polybench_rs::linear_algebra::kernels::atax::bench;
 
 fn bench_and_print<const M: usize, const N: usize>() {
+    let foo = || 0;
     let dims = format!("{:?}", (M, N));
-    let elapsed = bench::<M, N>().as_secs_f64();
-    println!("{:<14} | {:<30} | {:.7} s", "bicg", dims, elapsed);
+    let elapsed = bench::<M, N>(|| 0).as_secs_f64();
+    println!("{:<14} | {:<30} | {:.7} s", "atax", dims, elapsed);
 }
 
 fn main() {

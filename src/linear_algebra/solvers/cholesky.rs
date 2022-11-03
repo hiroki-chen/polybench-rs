@@ -34,20 +34,19 @@ unsafe fn kernel_cholesky<const N: usize>(n: usize, A: &mut Array2D<DataType, N,
     }
 }
 
-pub fn bench<const N: usize>() -> Duration {
+pub fn bench<const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
     let n = N;
 
     let mut A = Array2D::<DataType, N, N>::uninit();
 
     unsafe {
         init_array(n, &mut A);
-        let elapsed = util::benchmark(|| kernel_cholesky(n, &mut A));
+        let elapsed =
+            util::benchmark_with_timing_function(|| kernel_cholesky(n, &mut A), timing_function);
         util::consume(A);
         elapsed
     }
 }
 
 #[test]
-fn check() {
-    bench::<20>();
-}
+fn check() {}

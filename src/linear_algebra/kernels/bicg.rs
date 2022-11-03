@@ -44,7 +44,7 @@ unsafe fn kernel_bicg<const M: usize, const N: usize>(
     }
 }
 
-pub fn bench<const M: usize, const N: usize>() -> Duration {
+pub fn bench<const M: usize, const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
     let m = M;
     let n = N;
 
@@ -56,7 +56,10 @@ pub fn bench<const M: usize, const N: usize>() -> Duration {
 
     unsafe {
         init_array(m, n, &mut A, &mut r, &mut p);
-        let elapsed = util::benchmark(|| kernel_bicg(m, n, &A, &mut s, &mut q, &p, &r));
+        let elapsed = util::benchmark_with_timing_function(
+            || kernel_bicg(m, n, &A, &mut s, &mut q, &p, &r),
+            timing_function,
+        );
         util::consume(s);
         util::consume(q);
         elapsed
@@ -64,6 +67,4 @@ pub fn bench<const M: usize, const N: usize>() -> Duration {
 }
 
 #[test]
-fn check() {
-    bench::<19, 21>();
-}
+fn check() {}

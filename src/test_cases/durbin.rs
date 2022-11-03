@@ -1,10 +1,10 @@
 
-use polybench_rs::linear_algebra::solvers::cholesky::bench;
+use polybench_rs::linear_algebra::solvers::durbin::bench;
 
 fn bench_and_print<const N: usize>() {
     let dims = format!("{:?}", (N));
-    let elapsed = bench::<N>().as_secs_f64();
-    println!("{:<14} | {:<30} | {:.7} s", "cholesky", dims, elapsed);
+    let elapsed = bench::<N>(|| 0).as_secs_f64();
+    println!("{:<14} | {:<30} | {:.7} s", "durbin", dims, elapsed);
 }
 
 fn main() {

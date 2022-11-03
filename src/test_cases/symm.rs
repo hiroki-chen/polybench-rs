@@ -1,10 +1,10 @@
 
-use polybench_rs::linear_algebra::blas::syrk::bench;
+use polybench_rs::linear_algebra::blas::symm::bench;
 
 fn bench_and_print<const M: usize, const N: usize>() {
     let dims = format!("{:?}", (M, N));
-    let elapsed = bench::<M, N>().as_secs_f64();
-    println!("{:<14} | {:<30} | {:.7} s", "syrk", dims, elapsed);
+    let elapsed = bench::<M, N>(|| 0).as_secs_f64();
+    println!("{:<14} | {:<30} | {:.7} s", "symm", dims, elapsed);
 }
 
 fn main() {

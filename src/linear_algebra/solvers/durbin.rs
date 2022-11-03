@@ -37,7 +37,7 @@ unsafe fn kernel_durbin<const N: usize>(
     }
 }
 
-pub fn bench<const N: usize>() -> Duration {
+pub fn bench<const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
     let n = N;
 
     let mut r = Array1D::<DataType, N>::uninit();
@@ -45,13 +45,12 @@ pub fn bench<const N: usize>() -> Duration {
 
     unsafe {
         init_array(n, &mut r);
-        let elapsed = util::benchmark(|| kernel_durbin(n, &r, &mut y));
+        let elapsed =
+            util::benchmark_with_timing_function(|| kernel_durbin(n, &r, &mut y), timing_function);
         util::consume(y);
         elapsed
     }
 }
 
 #[test]
-fn check() {
-    bench::<20>();
-}
+fn check() {}

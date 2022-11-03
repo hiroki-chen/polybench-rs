@@ -54,7 +54,7 @@ unsafe fn kernel_symm<const M: usize, const N: usize>(
     }
 }
 
-pub fn bench<const M: usize, const N: usize>() -> Duration {
+pub fn bench<const M: usize, const N: usize, F: Fn() -> u64>(timing_function: F) -> Duration {
     let m = M;
     let n = N;
 
@@ -66,7 +66,10 @@ pub fn bench<const M: usize, const N: usize>() -> Duration {
 
     unsafe {
         init_array(m, n, &mut alpha, &mut beta, &mut C, &mut A, &mut B);
-        let elapsed = util::benchmark(|| kernel_symm(m, n, alpha, beta, &mut C, &A, &B));
+        let elapsed = util::benchmark_with_timing_function(
+            || kernel_symm(m, n, alpha, beta, &mut C, &A, &B),
+            timing_function,
+        );
         util::consume(C);
         elapsed
     }
@@ -74,5 +77,4 @@ pub fn bench<const M: usize, const N: usize>() -> Duration {
 
 #[test]
 fn check() {
-    bench::<10, 12>();
 }
