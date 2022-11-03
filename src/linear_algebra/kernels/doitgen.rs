@@ -3,7 +3,7 @@
 use crate::config::linear_algebra::kernels::doitgen::DataType;
 use crate::ndarray::{Array1D, Array2D, Array3D, ArrayAlloc};
 use crate::util;
-use std::time::Duration;
+use core::time::Duration;
 
 unsafe fn init_array<const NP: usize, const NQ: usize, const NR: usize>(
     nr: usize,

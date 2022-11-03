@@ -1,5 +1,7 @@
-use std::fmt;
-use std::ops::{self, Index, IndexMut};
+use alloc::alloc::*;
+use alloc::boxed::Box;
+use core::fmt;
+use core::ops::{self, Index, IndexMut};
 
 #[repr(C, align(32))]
 pub struct Array1D<T, const M: usize>(pub [T; M]);
@@ -89,17 +91,17 @@ where
 
 pub trait ArrayAlloc: Sized {
     fn uninit() -> Box<Self> {
-        let layout = std::alloc::Layout::new::<Self>();
+        let layout = Layout::new::<Self>();
         unsafe {
-            let raw = std::alloc::alloc(layout) as *mut Self;
+            let raw = alloc(layout) as *mut Self;
             Box::from_raw(raw)
         }
     }
 
     fn zeroed() -> Box<Self> {
-        let layout = std::alloc::Layout::new::<Self>();
+        let layout = Layout::new::<Self>();
         unsafe {
-            let raw = std::alloc::alloc_zeroed(layout) as *mut Self;
+            let raw = alloc_zeroed(layout) as *mut Self;
             Box::from_raw(raw)
         }
     }
@@ -160,7 +162,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::mem::size_of;
+    use core::mem::size_of;
 
     #[test]
     fn check_array_sizes() {

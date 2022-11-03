@@ -3,7 +3,7 @@
 use crate::config::linear_algebra::solvers::cholesky::DataType;
 use crate::ndarray::{Array2D, ArrayAlloc};
 use crate::util;
-use std::time::Duration;
+use core::time::Duration;
 
 unsafe fn init_array<const N: usize>(n: usize, A: &mut Array2D<DataType, N, N>) {
     for i in 0..n {

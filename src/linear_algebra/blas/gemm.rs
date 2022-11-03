@@ -3,7 +3,7 @@
 use crate::config::linear_algebra::blas::gemm::DataType;
 use crate::ndarray::{Array2D, ArrayAlloc};
 use crate::util;
-use std::time::Duration;
+use core::time::Duration;
 
 unsafe fn init_array<const NI: usize, const NJ: usize, const NK: usize>(
     ni: usize,

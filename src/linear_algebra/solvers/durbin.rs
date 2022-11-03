@@ -1,7 +1,7 @@
 use crate::config::linear_algebra::solvers::durbin::DataType;
 use crate::ndarray::{Array1D, ArrayAlloc};
 use crate::util;
-use std::time::Duration;
+use core::time::Duration;
 
 unsafe fn init_array<const N: usize>(n: usize, r: &mut Array1D<DataType, N>) {
     for i in 0..n {
@@ -14,7 +14,7 @@ unsafe fn kernel_durbin<const N: usize>(
     r: &Array1D<DataType, N>,
     y: &mut Array1D<DataType, N>,
 ) {
-    let mut z: [DataType; N] = std::mem::MaybeUninit::uninit().assume_init();
+    let mut z: [DataType; N] = core::mem::MaybeUninit::uninit().assume_init();
 
     y[0] = -r[0];
     let mut beta = 1.0;

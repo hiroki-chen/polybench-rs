@@ -1,7 +1,7 @@
 use crate::config::stencils::fdtd_2d::DataType;
 use crate::ndarray::{Array1D, Array2D, ArrayAlloc};
 use crate::util;
-use std::time::Duration;
+use core::time::Duration;
 
 unsafe fn init_array<const NX: usize, const NY: usize, const TMAX: usize>(
     tmax: usize,

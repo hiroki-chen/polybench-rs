@@ -1,7 +1,7 @@
 use crate::config::medley::nussinov::DataType;
 use crate::ndarray::{Array1D, Array2D, ArrayAlloc};
 use crate::util;
-use std::time::Duration;
+use core::time::Duration;
 
 type Base = i8;
 

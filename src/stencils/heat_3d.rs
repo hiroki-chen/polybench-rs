@@ -3,7 +3,7 @@
 use crate::config::stencils::heat_3d::DataType;
 use crate::ndarray::{Array3D, ArrayAlloc};
 use crate::util;
-use std::time::Duration;
+use core::time::Duration;
 
 unsafe fn init_array<const N: usize, const TSTEPS: usize>(
     n: usize,
