@@ -6,7 +6,6 @@
 #![feature(allocator_api)]
 
 extern crate alloc;
-extern crate sgx_alloc;
 
 pub mod datamining;
 pub mod linear_algebra;

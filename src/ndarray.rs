@@ -1,9 +1,9 @@
+use alloc::alloc::{alloc, alloc_zeroed};
 use alloc::boxed::Box;
 use core::alloc::Layout;
 use core::fmt;
 use core::mem::MaybeUninit;
 use core::ops::{self, Index, IndexMut};
-use sgx_alloc::alignalloc::{alloc, alloc_zeroed};
 
 #[repr(C, align(32))]
 pub struct Array1D<T, const M: usize>(pub [T; M]);
@@ -103,16 +103,9 @@ pub trait ArrayAlloc: Sized {
 
     /// Returns an zeroed array after `uninit`. This method ensures that the memory is valid.
     fn maybe_uninit_zeroed() -> Box<Self> {
-        let mut raw = MaybeUninit::<Self>::uninit();
-        unsafe {
-            core::ptr::write_bytes(raw.as_mut_ptr(), 0u8, core::mem::size_of::<Self>());
-            Box::new(raw.assume_init())
-        }
+        unsafe { Box::new_zeroed().assume_init() }
     }
 
-    /// When the `global_allocator` is provided by the Rust library, then it is safe to use `Box` to wrap an uninitialized buffer of memory.
-    /// However, when we are inside the enclave, this is totally undefined behavior because the pointer to which the `Box` points will cause
-    /// segmentation fault (not in enclave, unless the allocator is overriden) => Enclave crashes.
     #[deprecated]
     fn uninit() -> Box<Self> {
         let layout = Layout::new::<Self>();

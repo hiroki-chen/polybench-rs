@@ -10,4 +10,3 @@ print-result = []
 std = []
 
 [dependencies]
-sgx_alloc = { git = "https://github.com/hiroki-chen/incubator-teaclave-sgx-sdk.git", branch = "v2.0.0-preview", package = "sgx_alloc" }
