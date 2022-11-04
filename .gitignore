@@ -1,4 +1,3 @@
-/target
-
-.vs_code
+target
+.vscode
 Cargo.lock

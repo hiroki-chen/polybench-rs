@@ -97,22 +97,22 @@ pub trait ArrayAlloc: Sized {
     /// Returns an uninitialized array given the size of `Self`.
     /// This will use `MaybeUninit` to allocate a free memory with garbage data.
     /// Do not directly use this area because it is UB.
-    fn maybe_uninit() -> MaybeUninit<Self> {
-        MaybeUninit::<Self>::uninit()
+    fn maybe_uninit() -> Box<MaybeUninit<Self>> {
+        Box::new_uninit()
     }
 
     /// Returns an zeroed array after `uninit`. This method ensures that the memory is valid.
-    fn maybe_uninit_zeroed() -> Self {
+    fn maybe_uninit_zeroed() -> Box<Self> {
         let mut raw = MaybeUninit::<Self>::uninit();
         unsafe {
             core::ptr::write_bytes(raw.as_mut_ptr(), 0u8, core::mem::size_of::<Self>());
-            raw.assume_init()
+            Box::new(raw.assume_init())
         }
     }
 
     /// When the `global_allocator` is provided by the Rust library, then it is safe to use `Box` to wrap an uninitialized buffer of memory.
     /// However, when we are inside the enclave, this is totally undefined behavior because the pointer to which the `Box` points will cause
-    /// segmentation fault (not in enclave) => Enclave crashes.
+    /// segmentation fault (not in enclave, unless the allocator is overriden) => Enclave crashes.
     #[deprecated]
     fn uninit() -> Box<Self> {
         let layout = Layout::new::<Self>();
