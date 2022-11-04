@@ -1,14 +1,17 @@
 use crate::config::medley::deriche::DataType;
 use crate::ndarray::{Array2D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 unsafe fn init_array<const H: usize, const W: usize>(
     w: usize,
     h: usize,
     alpha: &mut DataType,
-    img_in: &mut Array2D<DataType, W, H>,
+    img_in: &mut MaybeUninit<Array2D<DataType, W, H>>,
 ) {
+    let img_in = unsafe { img_in.assume_init_mut() };
+
     *alpha = 0.25;
     for i in 0..w {
         for j in 0..h {
@@ -122,13 +125,18 @@ pub fn bench<const H: usize, const W: usize>(timing_function: &dyn Fn() -> u64) 
     let h = H;
 
     let mut alpha = 0.0;
-    let mut img_in = Array2D::<DataType, W, H>::uninit();
-    let mut img_out = Array2D::<DataType, W, H>::uninit();
-    let mut y1 = Array2D::<DataType, W, H>::uninit();
-    let mut y2 = Array2D::<DataType, W, H>::uninit();
+    let mut img_in = Array2D::<DataType, W, H>::maybe_uninit();
+    let img_out = Array2D::<DataType, W, H>::maybe_uninit();
+    let y1 = Array2D::<DataType, W, H>::maybe_uninit();
+    let y2 = Array2D::<DataType, W, H>::maybe_uninit();
 
     unsafe {
         init_array(w, h, &mut alpha, &mut img_in);
+        let img_in = img_in.assume_init();
+        let mut img_out = img_out.assume_init();
+        let mut y1 = y1.assume_init();
+        let mut y2 = y2.assume_init();
+
         let elapsed = util::benchmark_with_timing_function(
             || kernel_deriche(w, h, alpha, &img_in, &mut img_out, &mut y1, &mut y2),
             timing_function,

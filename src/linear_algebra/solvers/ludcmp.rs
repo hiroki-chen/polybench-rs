@@ -3,15 +3,21 @@
 use crate::config::linear_algebra::solvers::ludcmp::DataType;
 use crate::ndarray::{Array1D, Array2D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 unsafe fn init_array<const N: usize>(
     n: usize,
-    A: &mut Array2D<DataType, N, N>,
-    b: &mut Array1D<DataType, N>,
-    x: &mut Array1D<DataType, N>,
-    y: &mut Array1D<DataType, N>,
+    A: &mut MaybeUninit<Array2D<DataType, N, N>>,
+    b: &mut MaybeUninit<Array1D<DataType, N>>,
+    x: &mut MaybeUninit<Array1D<DataType, N>>,
+    y: &mut MaybeUninit<Array1D<DataType, N>>,
 ) {
+    let A = unsafe { A.assume_init_mut() };
+    let b = unsafe { b.assume_init_mut() };
+    let x = unsafe { x.assume_init_mut() };
+    let y = unsafe { y.assume_init_mut() };
+
     let float_n = n as DataType;
 
     for i in 0..n {
@@ -78,13 +84,18 @@ unsafe fn kernel_ludcmp<const N: usize>(
 pub fn bench<const N: usize>(timing_function: &dyn Fn() -> u64) -> Duration {
     let n = N;
 
-    let mut A = Array2D::<DataType, N, N>::uninit();
-    let mut b = Array1D::<DataType, N>::uninit();
-    let mut x = Array1D::<DataType, N>::uninit();
-    let mut y = Array1D::<DataType, N>::uninit();
+    let mut A = Array2D::<DataType, N, N>::maybe_uninit();
+    let mut b = Array1D::<DataType, N>::maybe_uninit();
+    let mut x = Array1D::<DataType, N>::maybe_uninit();
+    let mut y = Array1D::<DataType, N>::maybe_uninit();
 
     unsafe {
         init_array(n, &mut A, &mut b, &mut x, &mut y);
+        let b = b.assume_init();
+        let mut A = A.assume_init();
+        let mut x = x.assume_init();
+        let mut y = y.assume_init();
+
         let elapsed = util::benchmark_with_timing_function(
             || kernel_ludcmp(n, &mut A, &b, &mut x, &mut y),
             timing_function,

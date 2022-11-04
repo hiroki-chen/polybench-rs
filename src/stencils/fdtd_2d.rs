@@ -1,17 +1,23 @@
 use crate::config::stencils::fdtd_2d::DataType;
 use crate::ndarray::{Array1D, Array2D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 unsafe fn init_array<const NX: usize, const NY: usize, const TMAX: usize>(
     tmax: usize,
     nx: usize,
     ny: usize,
-    ex: &mut Array2D<DataType, NX, NY>,
-    ey: &mut Array2D<DataType, NX, NY>,
-    hz: &mut Array2D<DataType, NX, NY>,
-    fict: &mut Array1D<DataType, TMAX>,
+    ex: &mut MaybeUninit<Array2D<DataType, NX, NY>>,
+    ey: &mut MaybeUninit<Array2D<DataType, NX, NY>>,
+    hz: &mut MaybeUninit<Array2D<DataType, NX, NY>>,
+    fict: &mut MaybeUninit<Array1D<DataType, TMAX>>,
 ) {
+    let ex = unsafe { ex.assume_init_mut() };
+    let ey = unsafe { ey.assume_init_mut() };
+    let hz = unsafe { hz.assume_init_mut() };
+    let fict = unsafe { fict.assume_init_mut() };
+
     for i in 0..tmax {
         fict[i] = i as DataType;
     }
@@ -62,13 +68,18 @@ pub fn bench<const NX: usize, const NY: usize, const TMAX: usize>(
     let nx = NX;
     let ny = NY;
 
-    let mut ex = Array2D::<DataType, NX, NY>::uninit();
-    let mut ey = Array2D::<DataType, NX, NY>::uninit();
-    let mut hz = Array2D::<DataType, NX, NY>::uninit();
-    let mut fict = Array1D::<DataType, TMAX>::uninit();
+    let mut ex = Array2D::<DataType, NX, NY>::maybe_uninit();
+    let mut ey = Array2D::<DataType, NX, NY>::maybe_uninit();
+    let mut hz = Array2D::<DataType, NX, NY>::maybe_uninit();
+    let mut fict = Array1D::<DataType, TMAX>::maybe_uninit();
 
     unsafe {
         init_array(tmax, nx, ny, &mut ex, &mut ey, &mut hz, &mut fict);
+        let fict = fict.assume_init();
+        let mut ex = ex.assume_init();
+        let mut ey = ey.assume_init();
+        let mut hz = hz.assume_init();
+
         let elapsed = util::benchmark_with_timing_function(
             || kernel_fdtd_2d(tmax, nx, ny, &mut ex, &mut ey, &mut hz, &fict),
             timing_function,

@@ -3,15 +3,20 @@
 use crate::config::linear_algebra::solvers::gramschmidt::DataType;
 use crate::ndarray::{Array2D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 unsafe fn init_array<const M: usize, const N: usize>(
     m: usize,
     n: usize,
-    A: &mut Array2D<DataType, M, N>,
-    R: &mut Array2D<DataType, N, N>,
-    Q: &mut Array2D<DataType, M, N>,
+    A: &mut MaybeUninit<Array2D<DataType, M, N>>,
+    R: &mut MaybeUninit<Array2D<DataType, N, N>>,
+    Q: &mut MaybeUninit<Array2D<DataType, M, N>>,
 ) {
+    let A = unsafe { A.assume_init_mut() };
+    let R = unsafe { R.assume_init_mut() };
+    let Q = unsafe { Q.assume_init_mut() };
+
     for i in 0..m {
         for j in 0..n {
             A[i][j] = ((((i * j) % m) as DataType / m as DataType) * 100.0) + 10.0;
@@ -57,12 +62,16 @@ pub fn bench<const M: usize, const N: usize>(timing_function: &dyn Fn() -> u64) 
     let m = M;
     let n = N;
 
-    let mut A = Array2D::<DataType, M, N>::uninit();
-    let mut R = Array2D::<DataType, N, N>::uninit();
-    let mut Q = Array2D::<DataType, M, N>::uninit();
+    let mut A = Array2D::<DataType, M, N>::maybe_uninit();
+    let mut R = Array2D::<DataType, N, N>::maybe_uninit();
+    let mut Q = Array2D::<DataType, M, N>::maybe_uninit();
 
     unsafe {
         init_array(m, n, &mut A, &mut R, &mut Q);
+        let mut A = A.assume_init();
+        let mut R = R.assume_init();
+        let mut Q = Q.assume_init();
+
         let elapsed = util::benchmark_with_timing_function(
             || kernel_gramschmidt(m, n, &mut A, &mut R, &mut Q),
             timing_function,

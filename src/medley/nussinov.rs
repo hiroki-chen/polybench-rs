@@ -1,15 +1,19 @@
 use crate::config::medley::nussinov::DataType;
 use crate::ndarray::{Array1D, Array2D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 type Base = i8;
 
 unsafe fn init_array<const N: usize>(
     n: usize,
-    seq: &mut Array1D<Base, N>,
-    table: &mut Array2D<DataType, N, N>,
+    seq: &mut MaybeUninit<Array1D<Base, N>>,
+    table: &mut MaybeUninit<Array2D<DataType, N, N>>,
 ) {
+    let seq = unsafe { seq.assume_init_mut() };
+    let table = unsafe { table.assume_init_mut() };
+
     for i in 0..n {
         seq[i] = ((i + 1) % 4) as Base;
     }
@@ -75,11 +79,14 @@ unsafe fn kernel_nussinov<const N: usize>(
 pub fn bench<const N: usize>(timing_function: &dyn Fn() -> u64) -> Duration {
     let n = N;
 
-    let mut seq = Array1D::uninit();
-    let mut table = Array2D::<DataType, N, N>::uninit();
+    let mut seq = Array1D::maybe_uninit();
+    let mut table = Array2D::<DataType, N, N>::maybe_uninit();
 
     unsafe {
         init_array(n, &mut seq, &mut table);
+        let seq = seq.assume_init();
+        let mut table = table.assume_init();
+
         let elapsed = util::benchmark_with_timing_function(
             || kernel_nussinov(n, &seq, &mut table),
             timing_function,

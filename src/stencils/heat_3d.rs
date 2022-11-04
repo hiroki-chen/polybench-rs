@@ -3,13 +3,17 @@
 use crate::config::stencils::heat_3d::DataType;
 use crate::ndarray::{Array3D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 unsafe fn init_array<const N: usize, const TSTEPS: usize>(
     n: usize,
-    A: &mut Array3D<DataType, N, N, N>,
-    B: &mut Array3D<DataType, N, N, N>,
+    A: &mut MaybeUninit<Array3D<DataType, N, N, N>>,
+    B: &mut MaybeUninit<Array3D<DataType, N, N, N>>,
 ) {
+    let A = unsafe { A.assume_init_mut() };
+    let B = unsafe { B.assume_init_mut() };
+
     for i in 0..n {
         for j in 0..n {
             for k in 0..n {
@@ -54,11 +58,14 @@ pub fn bench<const N: usize, const TSTEPS: usize>(timing_function: &dyn Fn() -> 
     let n = N;
     let tsteps = TSTEPS;
 
-    let mut A = Array3D::<DataType, N, N, N>::uninit();
-    let mut B = Array3D::<DataType, N, N, N>::uninit();
+    let mut A = Array3D::<DataType, N, N, N>::maybe_uninit();
+    let mut B = Array3D::<DataType, N, N, N>::maybe_uninit();
 
     unsafe {
         init_array::<N, TSTEPS>(n, &mut A, &mut B);
+        let mut A = A.assume_init();
+        let mut B = B.assume_init();
+        
         let elapsed = util::benchmark_with_timing_function(
             || kernel_heat_3d::<N, TSTEPS>(tsteps, n, &mut A, &mut B),
             timing_function,

@@ -6,6 +6,8 @@ pub fn consume<T: fmt::Display>(dummy: T) -> T {
     #[cfg(feature = "print-result")]
     println!("{}", &dummy);
 
+    // You do not own the memory.
+    #[cfg(feature = "std")]
     unsafe {
         // Taken from bencher crate:
         // https://docs.rs/bencher/0.1.5/src/bencher/lib.rs.html#590-596
@@ -13,6 +15,9 @@ pub fn consume<T: fmt::Display>(dummy: T) -> T {
         core::mem::forget(dummy);
         ret
     }
+
+    #[cfg(not(feature = "std"))]
+    dummy
 }
 
 fn flush_llc_cache() {
@@ -41,10 +46,8 @@ pub fn benchmark_with_timing_function<F>(task: F, time_function: &dyn Fn() -> u6
 where
     F: FnOnce(),
 {
-    flush_llc_cache();
-
     let begin = time_function();
     task();
     let end = time_function();
-    Duration::from_secs(end - begin)
+    Duration::from_nanos(end - begin)
 }

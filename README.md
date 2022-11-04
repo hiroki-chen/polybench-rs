@@ -17,6 +17,8 @@ Individual benchmarks can be run with:
 
 The benchmarks are implemented as generic functions that accept the problem size as const generics. The data type to the benchmarks can be modified in [src/config.rs](https://github.com/JRF63/polybench-rs/blob/master/src/config.rs).
 
+By default, rustc will not enable polly. You have to re-compile it from source and enable `Polly` in `config.toml`.
+
 LLVM flags can be set through the `RUSTFLAGS` environment variable:
    ```sh
    set RUSTFLAGS=-Cllvm-args=--polly -Cllvm-args=--polly-vectorizer=stripmine

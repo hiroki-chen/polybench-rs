@@ -1,14 +1,17 @@
 use crate::config::datamining::correlation::DataType;
 use crate::ndarray::{Array1D, Array2D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 unsafe fn init_array<const M: usize, const N: usize>(
     m: usize,
     n: usize,
     float_n: &mut DataType,
-    data: &mut Array2D<DataType, M, N>,
+    data: &mut MaybeUninit<Array2D<DataType, M, N>>,
 ) {
+    let data = unsafe { data.assume_init_mut() };
+
     *float_n = n as DataType;
     for i in 0..m {
         for j in 0..n {
@@ -71,13 +74,18 @@ pub fn bench<const M: usize, const N: usize>(timing_function: &dyn Fn() -> u64) 
     let n = N;
 
     let mut float_n = 0.0;
-    let mut data = Array2D::<DataType, M, N>::uninit();
-    let mut corr = Array2D::<DataType, N, N>::uninit();
-    let mut mean = Array1D::<DataType, N>::uninit();
-    let mut stddev = Array1D::<DataType, N>::uninit();
+    let mut data = Array2D::<DataType, M, N>::maybe_uninit();
+    let corr = Array2D::<DataType, N, N>::maybe_uninit();
+    let mean = Array1D::<DataType, N>::maybe_uninit();
+    let stddev = Array1D::<DataType, N>::maybe_uninit();
 
     unsafe {
         init_array(m, n, &mut float_n, &mut data);
+        let mut data = data.assume_init();
+        let mut corr = corr.assume_init();
+        let mut mean = mean.assume_init();
+        let mut stddev = stddev.assume_init();
+
         let elapsed = util::benchmark_with_timing_function(
             || kernel_correlation(m, n, float_n, &mut data, &mut corr, &mut mean, &mut stddev),
             timing_function,

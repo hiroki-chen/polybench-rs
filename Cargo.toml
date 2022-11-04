@@ -9,3 +9,5 @@ license = "GPLv2"
 print-result = []
 
 [dependencies]
+sgx_alloc = { git = "https://github.com/hiroki-chen/incubator-teaclave-sgx-sdk.git", branch = "v2.0.0-preview", package = "sgx_alloc" }
+sgx_no_tstd = { git = "https://github.com/apache/incubator-teaclave-sgx-sdk.git", branch = "v2.0.0-preview", package = "sgx_no_tstd" }

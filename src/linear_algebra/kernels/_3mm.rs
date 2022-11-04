@@ -3,6 +3,7 @@
 use crate::config::linear_algebra::kernels::_3mm::DataType;
 use crate::ndarray::{Array2D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 unsafe fn init_array<
@@ -17,29 +18,34 @@ unsafe fn init_array<
     nk: usize,
     nl: usize,
     nm: usize,
-    A: &mut Array2D<DataType, NI, NK>,
-    B: &mut Array2D<DataType, NK, NJ>,
-    C: &mut Array2D<DataType, NJ, NM>,
-    D: &mut Array2D<DataType, NM, NL>,
+    A: &mut MaybeUninit<Array2D<DataType, NI, NK>>,
+    B: &mut MaybeUninit<Array2D<DataType, NK, NJ>>,
+    C: &mut MaybeUninit<Array2D<DataType, NJ, NM>>,
+    D: &mut MaybeUninit<Array2D<DataType, NM, NL>>,
 ) {
+    let a_mut = unsafe { A.assume_init_mut() };
+    let b_mut = unsafe { B.assume_init_mut() };
+    let c_mut = unsafe { C.assume_init_mut() };
+    let d_mut = unsafe { D.assume_init_mut() };
+
     for i in 0..ni {
         for j in 0..nk {
-            A[i][j] = ((i * j + 1) % ni) as DataType / (5 * ni) as DataType;
+            a_mut[i][j] = ((i * j + 1) % ni) as DataType / (5 * ni) as DataType;
         }
     }
     for i in 0..nk {
         for j in 0..nj {
-            B[i][j] = ((i * (j + 1) + 2) % nj) as DataType / (5 * nj) as DataType;
+            b_mut[i][j] = ((i * (j + 1) + 2) % nj) as DataType / (5 * nj) as DataType;
         }
     }
     for i in 0..nj {
         for j in 0..nm {
-            C[i][j] = (i * (j + 3) % nl) as DataType / (5 * nl) as DataType;
+            c_mut[i][j] = (i * (j + 3) % nl) as DataType / (5 * nl) as DataType;
         }
     }
     for i in 0..nm {
         for j in 0..nl {
-            D[i][j] = ((i * (j + 2) + 2) % nk) as DataType / (5 * nk) as DataType;
+            d_mut[i][j] = ((i * (j + 2) + 2) % nk) as DataType / (5 * nk) as DataType;
         }
     }
 }
@@ -105,16 +111,24 @@ pub fn bench<
     let nl = NL;
     let nm = NM;
 
-    let mut E = Array2D::<DataType, NI, NJ>::uninit();
-    let mut A = Array2D::<DataType, NI, NK>::uninit();
-    let mut B = Array2D::<DataType, NK, NJ>::uninit();
-    let mut F = Array2D::<DataType, NJ, NL>::uninit();
-    let mut C = Array2D::<DataType, NJ, NM>::uninit();
-    let mut D = Array2D::<DataType, NM, NL>::uninit();
-    let mut G = Array2D::<DataType, NI, NL>::uninit();
+    let E = Array2D::<DataType, NI, NJ>::maybe_uninit();
+    let mut A = Array2D::<DataType, NI, NK>::maybe_uninit();
+    let mut B = Array2D::<DataType, NK, NJ>::maybe_uninit();
+    let F = Array2D::<DataType, NJ, NL>::maybe_uninit();
+    let mut C = Array2D::<DataType, NJ, NM>::maybe_uninit();
+    let mut D = Array2D::<DataType, NM, NL>::maybe_uninit();
+    let G = Array2D::<DataType, NI, NL>::maybe_uninit();
 
     unsafe {
         init_array(ni, nj, nk, nl, nm, &mut A, &mut B, &mut C, &mut D);
+        let A = A.assume_init();
+        let B = B.assume_init();
+        let C = C.assume_init();
+        let D = D.assume_init();
+        let mut E = E.assume_init();
+        let mut F = F.assume_init();
+        let mut G = G.assume_init();
+
         let elapsed = util::benchmark_with_timing_function(
             || kernel_3mm(ni, nj, nk, nl, nm, &mut E, &A, &B, &mut F, &C, &D, &mut G),
             timing_function,

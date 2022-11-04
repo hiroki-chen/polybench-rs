@@ -1,7 +1,9 @@
-use alloc::alloc::*;
 use alloc::boxed::Box;
+use core::alloc::Layout;
 use core::fmt;
+use core::mem::MaybeUninit;
 use core::ops::{self, Index, IndexMut};
+use sgx_alloc::alignalloc::{alloc, alloc_zeroed};
 
 #[repr(C, align(32))]
 pub struct Array1D<T, const M: usize>(pub [T; M]);
@@ -71,7 +73,7 @@ where
     T: Copy + ops::Mul<Output = T> + ops::AddAssign<T>,
 {
     pub fn make_positive_semi_definite(&mut self) {
-        let mut b = Array2D::<T, N, N>::zeroed();
+        let mut b = Array2D::<T, N, N>::maybe_uninit_zeroed();
         let n = N;
 
         for t in 0..n {
@@ -89,7 +91,29 @@ where
     }
 }
 
+/// All these allocators are controlled by SGX allocators.
+/// If they are managed by `alloc`, they would point to invalid memory and the encalve will crash.
 pub trait ArrayAlloc: Sized {
+    /// Returns an uninitialized array given the size of `Self`.
+    /// This will use `MaybeUninit` to allocate a free memory with garbage data.
+    /// Do not directly use this area because it is UB.
+    fn maybe_uninit() -> MaybeUninit<Self> {
+        MaybeUninit::<Self>::uninit()
+    }
+
+    /// Returns an zeroed array after `uninit`. This method ensures that the memory is valid.
+    fn maybe_uninit_zeroed() -> Self {
+        let mut raw = MaybeUninit::<Self>::uninit();
+        unsafe {
+            core::ptr::write_bytes(raw.as_mut_ptr(), 0u8, core::mem::size_of::<Self>());
+            raw.assume_init()
+        }
+    }
+
+    /// When the `global_allocator` is provided by the Rust library, then it is safe to use `Box` to wrap an uninitialized buffer of memory.
+    /// However, when we are inside the enclave, this is totally undefined behavior because the pointer to which the `Box` points will cause
+    /// segmentation fault (not in enclave) => Enclave crashes.
+    #[deprecated]
     fn uninit() -> Box<Self> {
         let layout = Layout::new::<Self>();
         unsafe {
@@ -98,6 +122,7 @@ pub trait ArrayAlloc: Sized {
         }
     }
 
+    #[deprecated]
     fn zeroed() -> Box<Self> {
         let layout = Layout::new::<Self>();
         unsafe {

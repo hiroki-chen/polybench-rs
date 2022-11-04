@@ -3,6 +3,7 @@
 use crate::config::linear_algebra::blas::gemm::DataType;
 use crate::ndarray::{Array2D, ArrayAlloc};
 use crate::util;
+use core::mem::MaybeUninit;
 use core::time::Duration;
 
 unsafe fn init_array<const NI: usize, const NJ: usize, const NK: usize>(
@@ -11,10 +12,14 @@ unsafe fn init_array<const NI: usize, const NJ: usize, const NK: usize>(
     nk: usize,
     alpha: &mut DataType,
     beta: &mut DataType,
-    C: &mut Array2D<DataType, NI, NJ>,
-    A: &mut Array2D<DataType, NI, NK>,
-    B: &mut Array2D<DataType, NK, NJ>,
+    C: &mut MaybeUninit<Array2D<DataType, NI, NJ>>,
+    A: &mut MaybeUninit<Array2D<DataType, NI, NK>>,
+    B: &mut MaybeUninit<Array2D<DataType, NK, NJ>>,
 ) {
+    let A = unsafe { A.assume_init_mut() };
+    let B = unsafe { B.assume_init_mut() };
+    let C = unsafe { C.assume_init_mut() };
+
     *alpha = 1.5;
     *beta = 1.2;
     for i in 0..ni {
@@ -63,12 +68,16 @@ pub fn bench<const NI: usize, const NJ: usize, const NK: usize>(
 
     let mut alpha = 0.0;
     let mut beta = 0.0;
-    let mut C = Array2D::<DataType, NI, NJ>::uninit();
-    let mut A = Array2D::<DataType, NI, NK>::uninit();
-    let mut B = Array2D::<DataType, NK, NJ>::uninit();
+    let mut C = Array2D::<DataType, NI, NJ>::maybe_uninit();
+    let mut A = Array2D::<DataType, NI, NK>::maybe_uninit();
+    let mut B = Array2D::<DataType, NK, NJ>::maybe_uninit();
 
     unsafe {
         init_array(ni, nj, nk, &mut alpha, &mut beta, &mut C, &mut A, &mut B);
+        let A = A.assume_init();
+        let B = B.assume_init();
+        let mut C = C.assume_init();
+
         let elapsed = util::benchmark_with_timing_function(
             || kernel_gemm(ni, nj, nk, alpha, beta, &mut C, &A, &B),
             timing_function,
