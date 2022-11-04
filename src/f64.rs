@@ -8,6 +8,7 @@
 //! (as distinct from those defined in the `consts` sub-module),
 //! new code should instead use the associated constants
 //! defined directly on the `f64` type.
+#![cfg(not(std))]
 
 use crate::cmath;
 use core::intrinsics;
