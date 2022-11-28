@@ -23,6 +23,8 @@ pub fn consume<T>(dummy: T) -> T {
 /// which refers to the highest-numbered cache that is accessed by the cores prior to fetching from memory.
 /// Things get different when we are inside the enclave.
 fn flush_llc_cache() {
+    // Note that when we are in the range of enclave, the memory space must be
+    // sufficient to prevent illegitimate writes that cause segmentation fault.
     const LLC_CACHE_SIZE: usize = 32 * 1024 * 1024; // 32 MiB
     const NUM_ELEMS: usize = (LLC_CACHE_SIZE - 1) / core::mem::size_of::<usize>() + 1;
 
